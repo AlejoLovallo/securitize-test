@@ -9,13 +9,16 @@
 General:
 
 * Node v23
-* Pnpm <>
+* Pnpm v9.4.0
 
 * Backend:
+    * Nest Js
 
 * Contracts:
+    * Hardhat
 
 * UI:
+    * Next Js
 
 
 ### Code structure
