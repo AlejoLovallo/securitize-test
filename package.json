@@ -1,0 +1,59 @@
+{
+  "name": "7k-ai-backend-services",
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "build": "turbo run build",
+    "prepare": "husky",
+    "backend:docker:dev": "pnpm --filter 7k-ai-backend docker:dev",
+    "backend:dev": "pnpm --filter 7k-ai-backend dev",
+    "backend:lint": "pnpm --filter 7k-ai-backend lint",
+    "backend:migration:generate": "pnpm --filter 7k-ai-backend migration:generate:custom",
+    "backend:schema:generate": "pnpm --filter 7k-ai-backend migration:generate",
+    "docker:initdbs": "cd backend && bash ops/start-dbs.sh",
+    "docker:build-agent": "docker build -t 7k-agent -f Dockerfile.agent2 .",
+    "docker:build-backend": "docker build -t 7k-backend -f Dockerfile.backend ./backend",
+    "docker:run": "docker compose up -d",
+    "plugin-7k:build": "pnpm --filter \"@elizaos/plugin-7k\" build",
+    "plugin-7k:dev": "pnpm --filter \"@elizaos/plugin-7k\" dev",
+    "agent:dev": "turbo run build && pnpm --filter \"@7k-ai/agent\" dev",
+    "agent:lint": "pnpm --filter \"@7k-ai/agent\" lint",
+    "plugins:lint": "pnpm --filter \"@elizaos/plugin-7k\" lint && pnpm --filter \"@elizaos/client-direct\" lint",
+    "plugins:format": "pnpm --filter \"@elizaos/plugin-7k\" format && pnpm --filter \"@elizaos/client-direct\" format",
+    "lint": "pnpm backend:lint && pnpm agent:lint && pnpm plugins:lint",
+    "backend:test": "pnpm --filter 7k-ai-backend test"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.11",
+    "@types/node": "^22.13.9",
+    "@typescript-eslint/eslint-plugin": "^8.30.0",
+    "concurrently": "9.1.0",
+    "cross-env": "7.0.3",
+    "eslint": "^9.24.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "husky": "^9.1.5",
+    "jest": "^29.7.0",
+    "nodemon": "3.1.7",
+    "prettier": "^3.3.3",
+    "turbo": "2.4.2",
+    "typescript": "^5.5.4"
+  },
+  "engines": {
+    "node": "v23"
+  },
+  "dependencies": {
+    "cron": "^4.1.0",
+    "lint-staged": "^15.2.10"
+  },
+  "packageManager": "pnpm@9.4.0",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.ts": [
+      "pnpm lint"
+    ]
+  }
+}
