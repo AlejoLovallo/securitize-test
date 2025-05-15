@@ -1,13 +1,13 @@
 const namedAccounts = {
   deployer: {
-    default: 0
+    default: 0,
   },
   dev: {
-    default: 1
+    default: 1,
   },
   token: {
-    default: 2
-  }
+    default: 2,
+  },
 }
 
 export default namedAccounts
