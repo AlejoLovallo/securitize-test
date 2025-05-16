@@ -1,5 +1,6 @@
-import { IsOptional, IsInt, IsString } from 'class-validator'
+import { IsOptional, IsInt, IsString, IsArray, IsBoolean } from 'class-validator'
 import { Type } from 'class-transformer'
+import { ApiResponseProperty } from '@nestjs/swagger'
 
 export class GetItemsQueryDto {
   @IsOptional()
@@ -14,13 +15,41 @@ export class GetItemsQueryDto {
 
   @IsOptional()
   @IsString()
-  sortBy?: string
-
-  @IsOptional()
-  @IsString()
   token?: string
 
   @IsOptional()
   @IsString()
   seller?: string
+
+  @IsOptional()
+  @IsBoolean()
+  forceUpdate?: boolean
+}
+
+export class GetItemsResponse {
+  @ApiResponseProperty()
+  @IsArray()
+  @IsString({ each: true })
+  items: string[]
+
+  @ApiResponseProperty()
+  @IsArray()
+  decodedItems: Array<{
+    token: string
+    seller: string
+    amount: string
+    price: string
+  }>
+
+  @ApiResponseProperty()
+  @IsInt()
+  total: number
+
+  @ApiResponseProperty()
+  @IsInt()
+  page: number
+
+  @ApiResponseProperty()
+  @IsInt()
+  offset: number
 }

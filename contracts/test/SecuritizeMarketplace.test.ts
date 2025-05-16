@@ -12,6 +12,9 @@ describe('Securitize Marketplace', () => {
   let MockToken1: MockERC20
   let MockToken2: MockERC20
   let SecuritizeMarketplace: SecuritizeMarketplace
+  let securitizeMarketplaceAddress: string
+  let mockToken1Address: string
+  let mockToken2Address: string
 
   before(async () => {
     const accounts = await getNamedAccounts()
@@ -28,15 +31,25 @@ describe('Securitize Marketplace', () => {
     MockToken1 = MockToken1Contract
     MockToken2 = MockToken2Contract
     SecuritizeMarketplace = SecuritizeMarketplaceContract
+    securitizeMarketplaceAddress = await SecuritizeMarketplace.getAddress()
+    mockToken1Address = await MockToken1.getAddress()
+    mockToken2Address = await MockToken2.getAddress()
   })
 
-  it('Correct initialization', async () => {
-    // GIVEN
+  it('List item', async () => {
+    const token = mockToken1Address
+    const amount = 100
+    const price = ethers.parseEther('0.1')
+
+    await MockToken1.connect(deployer).approve(securitizeMarketplaceAddress, ethers.MaxUint256)
+    await SecuritizeMarketplace.connect(deployer).listItem(token, price, amount)
+
+    //     expect(item.token).to.equal(token)
+    //     expect(item.price).to.equal(price)
+    //     expect(item.amount).to.equal(amount)
   })
 
-  it('List item', async () => {})
-
-  it('Purchase item', async () => {})
-
-  it('Withdraw funds', async () => {})
+  xit('List items batch', async () => {})
+  xit('Purchase item', async () => {})
+  xit('Withdraw funds', async () => {})
 })

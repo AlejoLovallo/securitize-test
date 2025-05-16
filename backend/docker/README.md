@@ -9,3 +9,11 @@ services:
     ports:
       - 6379:6379
 ```
+
+```bash
+docker run -d \
+  --name redis-auth \
+  -p 6379:6379 \
+  redis:latest \
+  redis-server --requirepass strongpassword
+```

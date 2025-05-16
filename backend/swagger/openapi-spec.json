@@ -176,6 +176,181 @@
           }
         }
       }
+    },
+    "/marketplace/items": {
+      "get": {
+        "operationId": "MarketplaceController_getItems",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "marketplace"
+        ]
+      }
+    },
+    "/marketplace/list": {
+      "post": {
+        "operationId": "MarketplaceController_listItem",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ListItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "marketplace"
+        ]
+      }
+    },
+    "/marketplace/purchases": {
+      "get": {
+        "operationId": "MarketplaceController_getPurchases",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetPurchasesHistoryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "marketplace"
+        ]
+      }
+    },
+    "/marketplace/purchase": {
+      "post": {
+        "operationId": "MarketplaceController_purchaseItem",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PurchaseItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "marketplace"
+        ]
+      }
+    },
+    "/marketplace/withdraw": {
+      "post": {
+        "operationId": "MarketplaceController_withdrawFunds",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WithdrawFundsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "marketplace"
+        ]
+      }
+    },
+    "/marketplace/seller": {
+      "get": {
+        "operationId": "MarketplaceController_getSeller",
+        "parameters": [
+          {
+            "name": "address",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "marketplace"
+        ]
+      }
+    },
+    "/marketplace/signatures/list": {
+      "post": {
+        "operationId": "MarketplaceController_generateListSignature",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "marketplace"
+        ]
+      }
+    },
+    "/marketplace/signatures/purchase": {
+      "post": {
+        "operationId": "MarketplaceController_generatePurchaseSignature",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "marketplace"
+        ]
+      }
+    },
+    "/marketplace/signatures/withdraw": {
+      "post": {
+        "operationId": "MarketplaceController_generateWithdrawSignature",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "marketplace"
+        ]
+      }
     }
   },
   "info": {
@@ -199,6 +374,23 @@
         "type": "http"
       }
     },
-    "schemas": {}
+    "schemas": {
+      "ListItemDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "GetPurchasesHistoryDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "PurchaseItemDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "WithdrawFundsDto": {
+        "type": "object",
+        "properties": {}
+      }
+    }
   }
 }

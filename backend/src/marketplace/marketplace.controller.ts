@@ -1,7 +1,15 @@
-import { Controller, Get, Post, Query } from '@nestjs/common'
+import { Body, Controller, Get, Post, Query } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { MarketplaceService } from './marketplace.service'
-import { GetItemsQueryDto } from './dto'
+import {
+  GetItemsQueryDto,
+  GetItemsResponse,
+  GetPurchasesHistoryDto,
+  ListItemDto,
+  PurchaseItemDto,
+  WithdrawFundsDto,
+} from './dto'
+import { Seller } from './types'
 
 /**
  * Query listed items and purchase history from the smart contract.
@@ -18,16 +26,41 @@ export class MarketplaceController {
   constructor(private readonly marketplaceService: MarketplaceService) {}
 
   @Get('items')
-  async getItems(@Query() query: GetItemsQueryDto) {
+  async getItems(@Query() query: GetItemsQueryDto): Promise<GetItemsResponse> {
     return this.marketplaceService.getItems(query)
   }
 
+  @Post('list')
+  async listItem(@Body() body: ListItemDto) {
+    return this.marketplaceService.listItem(body)
+  }
+
   @Get('purchases')
-  async getPurchases() {}
+  async getPurchases(@Body() body: GetPurchasesHistoryDto) {
+    return this.marketplaceService.getPurchasesHistory(body)
+  }
 
   @Post('purchase')
-  async purchaseItem() {}
+  async purchaseItem(@Body() body: PurchaseItemDto) {
+    return this.marketplaceService.purchaseItem(body)
+  }
 
   @Post('withdraw')
-  async withdrawFunds() {}
+  async withdrawFunds(@Body() body: WithdrawFundsDto) {
+    return this.marketplaceService.withdrawFunds(body)
+  }
+
+  @Get('seller')
+  async getSeller(@Query('address') address: string): Promise<Seller> {
+    return this.marketplaceService.getSeller(address)
+  }
+
+  @Post('signatures/list')
+  async generateListSignature() {}
+
+  @Post('signatures/purchase')
+  async generatePurchaseSignature() {}
+
+  @Post('signatures/withdraw')
+  async generateWithdrawSignature() {}
 }

@@ -5,8 +5,11 @@ import { config } from 'dotenv'
 import { createClient } from 'redis'
 
 config()
+
+@Injectable()
 export class RedisService implements OnModuleInit {
   private redisClient: ReturnType<typeof createClient>
+  private expirationTime: number
 
   private readonly logger = new Logger(RedisService.name)
 
@@ -14,19 +17,22 @@ export class RedisService implements OnModuleInit {
   REDIS_KEY_NO_EXPIRATION = -1
 
   constructor(private readonly configService: ConfigService) {
-    const redisUser = process.env['REDIS_USER'] ?? ''
     const redisPassword = process.env['REDIS_PASSWORD'] ?? ''
     const redisHost = this.configService.get<string>('REDIS_HOST')
-    const redisPort = configService.get<string>('REDIS_PORT')
+    const redisPort = this.configService.get<string>('REDIS_PORT')
 
     const redisURL =
-      redisUser !== ''
-        ? `redis://${redisUser}:${redisPassword}@${redisHost}:${redisPort}`
+      redisPassword !== ''
+        ? `redis://${redisPassword}@${redisHost}:${redisPort}`
         : `redis://${redisHost}:${redisPort}`
 
     this.redisClient = createClient({
       url: redisURL,
     })
+
+    this.expirationTime =
+      this.configService.get<number>('REDIS_DEFAULT_EXPIRATION_TIME') ?? 9000000000000
+
     try {
       this.redisClient.connect()
     } catch (err) {
@@ -34,26 +40,19 @@ export class RedisService implements OnModuleInit {
     }
   }
 
-  /** 
   async setValue(key: string, value: any, ex?: number) {
-    await this.redisClient.set(`${MAGIC_PROXY_PARTNER_CONFIG_PREFIX}-${key}`, value, {
-      EX: ex
-        ? ex
-        : (parseEnvVar(process.env)(NumberFromString, 'REDIS_DEFAULT_EXPIRATION_TIME') ??
-          9000000000000),
+    await this.redisClient.set(`${key}`, value, {
+      EX: ex ?? this.expirationTime,
     })
   }
 
-
   async getValue(key: string) {
-    return this.fetchValueOrFail(`${MAGIC_PROXY_PARTNER_CONFIG_PREFIX}-${key}`, false)
+    return this.fetchValueOrFail(`${key}`, false)
   }
-
 
   async getValueOrThrow(key: string): Promise<any> {
-    return this.fetchValueOrFail(`${MAGIC_PROXY_PARTNER_CONFIG_PREFIX}-${key}`, true)
+    return this.fetchValueOrFail(`${key}`, true)
   }
-
 
   private async fetchValueOrFail(key: string, throwError?: boolean): Promise<any> {
     const value = await this.redisClient.get(key)
@@ -61,16 +60,15 @@ export class RedisService implements OnModuleInit {
     const ttl = await this.redisClient.ttl(key)
 
     if (ttl === this.REDIS_KEY_NOT_EXISTS && throwError) {
-      throw new ErrorWithData('Key does not exists or has expired', ErrorCode.BadRequest, key)
+      throw new Error(`Key does not exists or has expired - ${key}`)
     } else if (ttl === this.REDIS_KEY_NO_EXPIRATION) {
-      this.loggerService.debug(`Key ${key} has no expiration...`)
+      this.logger.debug(`Key ${key} has no expiration...`)
       return value
     }
 
     return value
   }
 
-  **/
   async onModuleInit() {
     this.logger.log('Redis service started...')
   }

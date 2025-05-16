@@ -10,20 +10,62 @@ export class Web3Service {
   private readonly logger = new Logger(Web3Service.name)
   private provider: ethers.AlchemyProvider
   private marketPlaceContract: ethers.Contract
+  private signer: ethers.Signer
 
   constructor(private readonly configService: ConfigService) {
     const alchemyApiKey = this.configService.get<string>('ALCHEMY_API_KEY')
     const network = this.configService.get<string>('NETWORK')
     const contractAddress = this.configService.get<string>('CONTRACT_ADDRESS')
+    const mnemonic = this.configService.get<string>('MNEMONIC')
 
     this.provider = new ethers.AlchemyProvider(network, alchemyApiKey)
 
     this.marketPlaceContract = new ethers.Contract(contractAddress, abi, this.provider)
 
+    this.signer = ethers.Wallet.fromPhrase(mnemonic).connect(this.provider)
+
     this.logger.log(`Web3Service initialized with network: ${network}`)
   }
 
-  public async executeContractMethod() {}
+  public async getEvents(eventName: string, filter: any = {}) {
+    this.logger.log(`Getting ${eventName} events with filter:`, filter)
+    try {
+      const events = await this.marketPlaceContract.queryFilter(
+        this.marketPlaceContract.filters[eventName](),
+        filter.fromBlock,
+        filter.toBlock,
+      )
+      return events
+    } catch (error) {
+      this.logger.error(`Error getting events: ${error.message}`)
+      throw error
+    }
+  }
 
-  public async callContractMethod() {}
+  public async executeContractMethod(method: string, args: any[] = []) {
+    this.logger.log(`Executing contract method: ${method} with args: ${args}`)
+    try {
+      const result = await this.marketPlaceContract.connect(this.signer)[`${method}`](...args)
+      return result
+    } catch (error) {
+      this.logger.error(`Error calling contract method: ${error.message}`)
+      throw error
+    }
+  }
+
+  public async callContractMethod(method: string, args: any[] = []) {
+    this.logger.log(`Calling contract method: ${method} with args: ${args}`)
+    try {
+      const result = await this.marketPlaceContract[`${method}`](...args)
+      return result
+    } catch (error) {
+      this.logger.error(`Error calling contract method: ${error.message}`)
+      throw error
+    }
+  }
+
+  public async getCurrentBlockTimestamp() {
+    const block = await this.provider.getBlock('latest')
+    return block.timestamp
+  }
 }

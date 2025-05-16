@@ -5,10 +5,20 @@ import 'hardhat-deploy'
 import 'hardhat-deploy-ethers'
 import 'hardhat-abi-exporter'
 
+import { tasks as ListItemTask } from './tasks/listItem.task'
+import { tasks as WithdrawFundsTask } from './tasks/withdrawFunds.task'
+import { tasks as PurchaseItemTask } from './tasks/purchaseItem.task'
+import { tasks as ApproveTask } from './tasks/approveContract.task'
+
 dotEnvConfig()
 
 import networks from './hardhat.networks'
 import namedAccounts from './hardhat.accounts'
+
+ListItemTask()
+WithdrawFundsTask()
+PurchaseItemTask()
+ApproveTask()
 
 const config: HardhatUserConfig = {
   solidity: '0.8.28',
