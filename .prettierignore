@@ -1,1 +1,8 @@
 node_modules
+contracts/artifacts
+contracts/cache
+contracts/coverage*
+contracts/gasReporterOutput.json
+contracts/typechain-types
+**/typechain-types/**
+typechain-types

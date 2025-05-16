@@ -1,19 +1,19 @@
 {
-  "name": "7k-ai-backend-services",
+  "name": "securitize-test",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "build": "turbo run build",
     "prepare": "husky",
-    "backend:docker:dev": "pnpm --filter 7k-ai-backend docker:dev",
-    "backend:dev": "pnpm --filter 7k-ai-backend dev",
-    "backend:lint": "pnpm --filter 7k-ai-backend lint",
+    "contracts:compile": "pnpm --filter securitize-contracts compile",
+    "contracts:deploy": "pnpm --filter securitize-contracts deploy-contracts",
+    "contracts:lint": "pnpm --filter securitize-contracts lint",
+    "backend:dev": "pnpm --filter backend dev",
+    "backend:lint": "pnpm --filter backend lint",
     "backend:migration:generate": "pnpm --filter backend migration:generate:custom",
     "backend:schema:generate": "pnpm --filter backend migration:generate",
     "backend:test": "pnpm --filter backend test",
-    "lint": "pnpm backend:lint && pnpm agent:lint && pnpm plugins:lint",
-    "docker:initdbs": "cd backend && bash ops/start-dbs.sh",
-    "docker:build-backend": "docker build -t 7k-backend -f Dockerfile.backend ./backend",
-    "docker:run": "docker compose up -d"
+    "ui:dev": "pnpm --filter ui dev",
+    "lint": "pnpm contracts:lint"
   },
   "devDependencies": {
     "@types/jest": "^29.5.11",
