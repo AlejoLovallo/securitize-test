@@ -1,7 +1,10 @@
+import { config } from 'dotenv'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { printDeploySuccessful, printInfo } from '../utils'
 import { verifyContract } from '../scripts/verifyContract'
+
+config()
 
 const version = 'V1'
 const ContractName = 'SecuritizeMarketplace'

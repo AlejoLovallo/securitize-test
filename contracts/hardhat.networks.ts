@@ -12,6 +12,19 @@ const networks: any = {
     allowUnlimitedContractSize: true,
     timeout: 1000 * 60,
   },
+  sepolia: {
+    live: true,
+    chainId: 11155111,
+    url: process.env.SEPOLIA_ALCHEMY_KEY
+      ? `https://eth-sepolia.g.alchemy.com/v2/${process.env.SEPOLIA_ALCHEMY_KEY}`
+      : '',
+    accounts: {
+      mnemonic: process.env.MNEMONIC ? process.env.MNEMONIC : '',
+    },
+    allowUnlimitedContractSize: false,
+    timeout: 1000 * 60,
+    tags: ['testnet', 'sepolia'],
+  },
 }
 
 export default networks

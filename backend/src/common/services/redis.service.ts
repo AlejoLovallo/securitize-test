@@ -1,23 +1,23 @@
-import { Injectable, OnModuleInit, Inject } from '@nestjs/common'
-import * as t from 'io-ts'
+import { Injectable, OnModuleInit, Logger, HttpException } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { config } from 'dotenv'
 
-import { NumberFromString } from 'io-ts-types'
 import { createClient } from 'redis'
 
 config()
-@Injectable()
 export class RedisService implements OnModuleInit {
   private redisClient: ReturnType<typeof createClient>
+
+  private readonly logger = new Logger(RedisService.name)
 
   REDIS_KEY_NOT_EXISTS = -2
   REDIS_KEY_NO_EXPIRATION = -1
 
-  constructor(@Inject(LoggerServiceKey) private readonly loggerService: LoggerService) {
+  constructor(private readonly configService: ConfigService) {
     const redisUser = process.env['REDIS_USER'] ?? ''
     const redisPassword = process.env['REDIS_PASSWORD'] ?? ''
-    const redisHost = parseEnvVar(process.env)(t.string, 'REDIS_HOST')
-    const redisPort = parseEnvVar(process.env)(t.string, 'REDIS_PORT')
+    const redisHost = this.configService.get<string>('REDIS_HOST')
+    const redisPort = configService.get<string>('REDIS_PORT')
 
     const redisURL =
       redisUser !== ''
@@ -30,16 +30,11 @@ export class RedisService implements OnModuleInit {
     try {
       this.redisClient.connect()
     } catch (err) {
-      throw new ErrorWithData('Could not connect to Redis DB', ErrorCode.Unknown, err)
+      throw new HttpException('Could not connect to Redis DB', 500)
     }
   }
 
-  /**
-   * @dev Set value in redis db
-   * @param key Key value
-   * @param value Value to set
-   * @param ex (optional) expiration time of the value
-   */
+  /** 
   async setValue(key: string, value: any, ex?: number) {
     await this.redisClient.set(`${MAGIC_PROXY_PARTNER_CONFIG_PREFIX}-${key}`, value, {
       EX: ex
@@ -49,30 +44,17 @@ export class RedisService implements OnModuleInit {
     })
   }
 
-  /**
-   * @dev Get value from redis db
-   * @param key
-   * @returns
-   */
+
   async getValue(key: string) {
     return this.fetchValueOrFail(`${MAGIC_PROXY_PARTNER_CONFIG_PREFIX}-${key}`, false)
   }
 
-  /**
-   * @dev Retrieve value from Redis and throw an error if not present.
-   * @param key Key to retrieve value
-   * @returns {any}
-   */
+
   async getValueOrThrow(key: string): Promise<any> {
     return this.fetchValueOrFail(`${MAGIC_PROXY_PARTNER_CONFIG_PREFIX}-${key}`, true)
   }
 
-  /**
-   * @dev Get value from db and optionally throw and error if It is not present.
-   * @param key Key to retrieve value
-   * @param throwError whether to throw on error or not
-   * @returns {any}
-   */
+
   private async fetchValueOrFail(key: string, throwError?: boolean): Promise<any> {
     const value = await this.redisClient.get(key)
 
@@ -88,7 +70,8 @@ export class RedisService implements OnModuleInit {
     return value
   }
 
+  **/
   async onModuleInit() {
-    this.loggerService.info('Redis service started...')
+    this.logger.log('Redis service started...')
   }
 }

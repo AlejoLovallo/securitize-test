@@ -43,7 +43,7 @@ contract SecuritizeMarketplace is ISecuritizeMarketplace, Context, ReentrancyGua
      * @param price The price of the item in WEI
      * @param amount The amount of tokens to list
      */
-    function listItem(address token, uint256 price, uint256 amount) external nonReentrant {
+    function listItem(address token, uint256 price, uint256 amount) external {
         _checkItem(token, price, amount);
 
         bool success = IERC20(token).transferFrom(_msgSender(), address(this), amount);
@@ -169,6 +169,7 @@ contract SecuritizeMarketplace is ISecuritizeMarketplace, Context, ReentrancyGua
 
         // Mark the item as inactive
         item.active = false;
+        _itemsSet.remove(itemId);
 
         emit ItemPurchased(_msgSender(), item.token, item.amount, item.price);
     }
@@ -307,6 +308,10 @@ contract SecuritizeMarketplace is ISecuritizeMarketplace, Context, ReentrancyGua
      * @param listingId The ID of the item to be purchased
      */
     function _checkBuyer(address buyer, uint256 listingId) internal view {
+        if (!_itemsSet.contains(listingId)) {
+            revert InvalidItemId(listingId);
+        }
+
         if (listingId >= _currentListId) {
             revert InvalidItemId(listingId);
         }
