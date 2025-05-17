@@ -153,7 +153,7 @@ export class MarketplaceService {
   }
 
   public async getSeller(sellerAddress: string): Promise<Seller> {
-    this.logger.log('Fetching seller from the marketplace')
+    this.logger.log(`Fetching seller from the marketplace with address: ${sellerAddress}`)
     let seller: Seller | null = null
 
     return await this._findSeller(sellerAddress)

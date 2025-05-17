@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common'
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { MarketplaceService } from './marketplace.service'
 import {
@@ -50,8 +50,8 @@ export class MarketplaceController {
     return this.marketplaceService.withdrawFunds(body)
   }
 
-  @Get('seller')
-  async getSeller(@Query('address') address: string): Promise<Seller> {
+  @Get('sellers/:address')
+  async getSeller(@Param('address') address: string): Promise<Seller> {
     return this.marketplaceService.getSeller(address)
   }
 

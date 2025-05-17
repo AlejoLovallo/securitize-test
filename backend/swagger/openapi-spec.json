@@ -287,14 +287,14 @@
         ]
       }
     },
-    "/marketplace/seller": {
+    "/marketplace/sellers/{address}": {
       "get": {
         "operationId": "MarketplaceController_getSeller",
         "parameters": [
           {
             "name": "address",
             "required": true,
-            "in": "query",
+            "in": "path",
             "schema": {
               "type": "string"
             }
