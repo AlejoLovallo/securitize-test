@@ -48,6 +48,6 @@ interface ISecuritizeMarketplace {
     error InvalidBuyer(address seller, address token);
     error NoEarningsToWithdraw(address seller);
     error EarningsTransferError(address seller, uint256 amount);
-    error InvalidPreListDeadline(uint256 deadline);
+    error InvalidDeadline(uint256 deadline);
     error InvalidSignature(address signer, address expectedSigner);
 }

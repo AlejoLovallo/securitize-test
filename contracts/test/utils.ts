@@ -22,3 +22,16 @@ export const deployMockERC20 = async ({
 
   return MockERC20Token
 }
+
+export async function verifySignature(
+  domain: any,
+  types: any,
+  value: any,
+  signature: string,
+  expectedSigner: string,
+) {
+  const recoveredAddress = ethers.verifyTypedData(domain, types, value, signature)
+  console.log('Recovered address:', recoveredAddress)
+  console.log('Expected signer:', expectedSigner)
+  return recoveredAddress.toLowerCase() === expectedSigner.toLowerCase()
+}

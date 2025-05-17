@@ -28,12 +28,12 @@ contract SecuritizeMarketplace is ISecuritizeMarketplace, Context, ReentrancyGua
     EnumerableSet.UintSet private _itemsSet;
 
     bytes32 private constant LIST_TYPEHASH =
-        keccak256("ListItem(address tokenAddress,uint256 priceInWei, uint256 amount, uint256 nonce, uint256 deadline)");
+        keccak256("ListItem(address tokenAddress,uint256 priceInWei,uint256 amount,uint256 nonce,uint256 deadline)");
 
     bytes32 private constant PURCHASE_TYPEHASH =
-        keccak256("PurchaseItem(uint256 itemId, uint256 nonce, uint256 deadline)");
+        keccak256("PurchaseItem(uint256 itemId,uint256 nonce,uint256 deadline)");
 
-    bytes32 private constant WITHDRAW_TYPEHASH = keccak256("WithdrawFunds(uint256 nonce, uint256 deadline)");
+    bytes32 private constant WITHDRAW_TYPEHASH = keccak256("WithdrawFunds(uint256 nonce,uint256 deadline)");
 
     constructor() EIP712("SecuritizeMarketplace", "1") {
         emit Initialized(_msgSender());
@@ -169,8 +169,8 @@ contract SecuritizeMarketplace is ISecuritizeMarketplace, Context, ReentrancyGua
         bytes calldata signature,
         address seller,
         address token,
-        uint256 amount,
         uint256 price,
+        uint256 amount,
         uint256 deadline
     ) external {
         _checkItem(token, price, amount);
@@ -189,12 +189,12 @@ contract SecuritizeMarketplace is ISecuritizeMarketplace, Context, ReentrancyGua
         }
 
         if (deadline < block.timestamp) {
-            revert InvalidPreListDeadline(deadline);
+            revert InvalidDeadline(deadline);
         }
 
         uint256 nonce = sellers[seller].signedNonce;
 
-        _verifyListSignature(seller, token, amount, price, nonce, deadline, signature);
+        _verifyListSignature(seller, token, price, amount, nonce, deadline, signature);
 
         sellers[seller].signedNonce++;
 
@@ -231,7 +231,7 @@ contract SecuritizeMarketplace is ISecuritizeMarketplace, Context, ReentrancyGua
     function purchaseItem(uint256 itemId) external payable nonReentrant {
         _checkBuyer(_msgSender(), itemId);
 
-        ListedItem memory item = listedItems[itemId];
+        ListedItem storage item = listedItems[itemId];
 
         // Transfer the tokens to the buyer
         bool success = IERC20(item.token).transfer(_msgSender(), item.amount);
@@ -269,7 +269,7 @@ contract SecuritizeMarketplace is ISecuritizeMarketplace, Context, ReentrancyGua
         _checkBuyer(buyer, itemId);
 
         if (deadline < block.timestamp) {
-            revert InvalidPreListDeadline(deadline);
+            revert InvalidDeadline(deadline);
         }
 
         uint256 nonce = buyerNonces[buyer];
@@ -278,7 +278,7 @@ contract SecuritizeMarketplace is ISecuritizeMarketplace, Context, ReentrancyGua
 
         buyerNonces[buyer]++;
 
-        ListedItem memory item = listedItems[itemId];
+        ListedItem storage item = listedItems[itemId];
 
         // Transfer the tokens to the buyer
         bool success = IERC20(item.token).transfer(buyer, item.amount);
@@ -315,6 +315,9 @@ contract SecuritizeMarketplace is ISecuritizeMarketplace, Context, ReentrancyGua
             revert EarningsTransferError(_msgSender(), amount);
         }
 
+        // Update the seller's information
+        sellers[_msgSender()].pendingWithdrawals = 0;
+
         emit FundsWithdrawn(_msgSender(), amount);
     }
 
@@ -326,7 +329,7 @@ contract SecuritizeMarketplace is ISecuritizeMarketplace, Context, ReentrancyGua
      */
     function withdrawWithSig(address payable seller, bytes calldata sig, uint256 deadline) external nonReentrant {
         if (deadline < block.timestamp) {
-            revert InvalidPreListDeadline(deadline);
+            revert InvalidDeadline(deadline);
         }
 
         uint256 nonce = sellers[seller].signedNonce;
@@ -419,16 +422,25 @@ contract SecuritizeMarketplace is ISecuritizeMarketplace, Context, ReentrancyGua
     function _verifyListSignature(
         address seller,
         address token,
-        uint256 amount,
         uint256 price,
+        uint256 amount,
         uint256 nonce,
         uint256 deadline,
         bytes calldata signature
     ) internal view {
-        bytes32 structHash = keccak256(abi.encode(LIST_TYPEHASH, seller, token, amount, price, nonce, deadline));
-        bytes32 digest = _hashTypedDataV4(structHash);
+        bytes32 structHash = keccak256(
+            abi.encode(
+                LIST_TYPEHASH,
+                token, // tokenAddress
+                price, // priceInWei
+                amount, // amount
+                nonce, // nonce
+                deadline // deadline
+            )
+        );
+        bytes32 hash = _hashTypedDataV4(structHash);
 
-        address signer = ECDSA.recover(digest, signature);
+        address signer = ECDSA.recover(hash, signature);
         if (signer != seller) {
             revert InvalidSignature(signer, seller);
         }
