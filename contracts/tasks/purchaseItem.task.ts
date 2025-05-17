@@ -13,7 +13,16 @@ export const tasks = () => {
       const SecuritizeMarketplace: SecuritizeMarketplace =
         await ethers.getContract('SecuritizeMarketplace')
 
-      const response = await SecuritizeMarketplace.connect(account).purchaseItem(item)
+      const listItem = await SecuritizeMarketplace.listedItems(item)
+
+      if (!listItem) {
+        console.log(chalk.red('Item not found'))
+        return
+      }
+
+      const response = await SecuritizeMarketplace.connect(account).purchaseItem(item, {
+        value: listItem.price,
+      })
 
       console.log(chalk.yellow(`Transaction hash: ${response.hash}`))
 

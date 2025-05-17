@@ -22,7 +22,35 @@ Implement a Marketplace contract using ERC-20 tokens as the traded items.
 - Include events for important actions ( ItemListed , ItemPurchased , FundsWithdrawn ).
 - Use OpenZeppelin libraries such as ERC-20 where possible.
 
-###
+---
+
+### Commands
+
+```bash
+
+```
+
+### Tasks
+
+Clarification: All tasks has to be run by adding --network <NETWORK> to run it.
+
+0. Approve a token to the contract
+
+```bash
+npx hardhat approve-tokens --token <TOKEN ADDRESS> --amount <AMOUNT TO APPROVE>
+```
+
+1. List item
+
+```bash
+npx hardhat list-item --token <TOKEN ADDRESS> --amount <AMOUNT> --price <TOKENS PRICE>
+```
+
+2. Purchase item
+
+```bash
+npx hardhat buy-item --item <ITEM_ID>
+```
 
 ### Deployment
 

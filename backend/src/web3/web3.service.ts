@@ -11,6 +11,7 @@ export class Web3Service {
   private provider: ethers.AlchemyProvider
   private marketPlaceContract: ethers.Contract
   private signer: ethers.Signer
+  private contractAddress: string
 
   constructor(private readonly configService: ConfigService) {
     const alchemyApiKey = this.configService.get<string>('ALCHEMY_API_KEY')
@@ -27,14 +28,11 @@ export class Web3Service {
     this.logger.log(`Web3Service initialized with network: ${network}`)
   }
 
-  public async getEvents(eventName: string, filter: any = {}) {
-    this.logger.log(`Getting ${eventName} events with filter:`, filter)
+  public async getEvents(eventName: string, args: any[] = [], fromBlock?: number) {
+    this.logger.log(`Getting ${eventName} events with args and block:`, args, fromBlock)
     try {
-      const events = await this.marketPlaceContract.queryFilter(
-        this.marketPlaceContract.filters[eventName](),
-        filter.fromBlock,
-        filter.toBlock,
-      )
+      const filter = this.marketPlaceContract.filters[eventName](...args)
+      const events = await this.marketPlaceContract.queryFilter(filter, fromBlock, 'latest')
       return events
     } catch (error) {
       this.logger.error(`Error getting events: ${error.message}`)
@@ -67,5 +65,12 @@ export class Web3Service {
   public async getCurrentBlockTimestamp() {
     const block = await this.provider.getBlock('latest')
     return block.timestamp
+  }
+
+  public async getContractAddress(): Promise<string> {
+    if (!this.contractAddress) {
+      return this.marketPlaceContract.getAddress()
+    }
+    return this.contractAddress
   }
 }

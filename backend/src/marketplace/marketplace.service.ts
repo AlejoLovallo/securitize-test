@@ -9,7 +9,20 @@ import {
   WithdrawFundsDto,
 } from './dto'
 import { RedisService } from 'src/marketplace/redis.service'
-import { MarketplaceItem, Seller } from './types'
+import {
+  ListSignatureResponse,
+  MarketplaceItem,
+  PurchaseSignatureResponse,
+  Seller,
+  TransactionResponse,
+  WithdrawSignatureResponse,
+} from './types'
+import {
+  DOMAIN,
+  LIST_ITEM_SIGNATURE,
+  PURCHASE_ITEM_SIGNATURE,
+  WITHDRAW_SIGNATURE,
+} from 'src/web3/types'
 
 @Injectable()
 export class MarketplaceService {
@@ -20,6 +33,11 @@ export class MarketplaceService {
     private readonly redisService: RedisService,
   ) {}
 
+  /**
+   * @Get active listed items
+   * @param query {GetItemsQueryDto}
+   * @returns {GetItemsResponse}
+   */
   public async getItems(query: GetItemsQueryDto): Promise<GetItemsResponse> {
     this.logger.log('Fetching items from the marketplace')
     const { page, limit, token, seller, forceUpdate } = query
@@ -87,7 +105,12 @@ export class MarketplaceService {
     }
   }
 
-  public async listItem(data: ListItemDto) {
+  /**
+   * @dev List an item on the marketplace with EIP712 signature
+   * @param data {ListItemDto}
+   * @returns {TransactionResponse}
+   */
+  public async listItem(data: ListItemDto): Promise<TransactionResponse> {
     this.logger.log('Listing item on the marketplace')
     const { token, price, amount, signature, deadline } = data
 
@@ -109,7 +132,12 @@ export class MarketplaceService {
     }
   }
 
-  public async purchaseItem(data: PurchaseItemDto) {
+  /**
+   * @dev Purchase an item on the marketplace with EIP712 signature
+   * @param data {PurchaseItemDto}
+   * @returns {TransactionResponse}
+   */
+  public async purchaseItem(data: PurchaseItemDto): Promise<TransactionResponse> {
     this.logger.log('Purchase item on the marketplace')
     const { itemId, buyer, signature, deadline } = data
 
@@ -132,7 +160,12 @@ export class MarketplaceService {
     }
   }
 
-  public async withdrawFunds(data: WithdrawFundsDto) {
+  /**
+   * @dev Withdraw funds from the marketplace with EIP712 signature
+   * @param data {WithdrawFundsDto}
+   * @returns {TransactionResponse}
+   */
+  public async withdrawFunds(data: WithdrawFundsDto): Promise<TransactionResponse> {
     this.logger.log('Withdraw funds from the marketplace')
     const { seller, signature, deadline } = data
 
@@ -152,14 +185,143 @@ export class MarketplaceService {
     }
   }
 
+  /**
+   * @dev Get seller information from the marketplace
+   * @param sellerAddress {string}
+   * @returns {Seller}
+   */
   public async getSeller(sellerAddress: string): Promise<Seller> {
     this.logger.log(`Fetching seller from the marketplace with address: ${sellerAddress}`)
-    let seller: Seller | null = null
 
     return await this._findSeller(sellerAddress)
   }
 
-  public async getPurchasesHistory(data: GetPurchasesHistoryDto) {}
+  public async getPurchasesHistory(data: GetPurchasesHistoryDto) {
+    this.logger.log('Fetching purchases history from the marketplace')
+    const { fromBlock, toBlock } = data
+
+    const cacheKey = `marketplace:purchases:all`
+    let purchaseEvents: any[] = []
+
+    // If not forcing update, try to get from cache
+    const cachedEvents = await this.redisService.getValue(cacheKey)
+    if (cachedEvents) {
+      this.logger.log('Found purchases in cache')
+      try {
+        const parsedCache = JSON.parse(cachedEvents)
+        purchaseEvents = parsedCache
+      } catch (error) {
+        this.logger.error('Error parsing cached purchases:', error)
+      }
+    }
+
+    // If cache miss or force update, fetch from blockchain
+    if (purchaseEvents.length === 0) {
+      this.logger.log('Fetching purchases from blockchain')
+      const rawEvents = await this.web3Service.getEvents('ItemPurchased', [], fromBlock)
+
+      purchaseEvents = await this._getDecodedPurchaseEvents(rawEvents)
+
+      // Cache the results
+      await this.redisService.setValue(cacheKey, JSON.stringify({ purchaseEvents }))
+    }
+
+    return {
+      purchaseEvents,
+    }
+  }
+
+  /**
+   * @dev Generate EIP712 signature for listing an item
+   * @param data {Omit<ListItemDto, 'signature'>}
+   * @returns {ListSignatureResponse}
+   */
+  public async generateListSignature(
+    data: Omit<ListItemDto, 'signature'>,
+  ): Promise<ListSignatureResponse> {
+    const seller = await this._findSeller(data.seller, false)
+    const nonce = seller?.signedNonce || 0
+    const deadline =
+      data.deadline ?? (await this.web3Service.getCurrentBlockTimestamp()) + 60 * 60 * 24
+
+    return {
+      domain: {
+        verifyingContract: await this.web3Service.getContractAddress(),
+        ...DOMAIN,
+      },
+      types: {
+        ListItem: LIST_ITEM_SIGNATURE.ListItem,
+      },
+      value: {
+        tokenAddress: data.token,
+        amount: data.amount,
+        price: data.price,
+        nonce: nonce,
+        deadline: deadline,
+      },
+    }
+  }
+
+  /**
+   * @dev Generate EIP712 signature for purchasing an item
+   * @param data {Omit<PurchaseItemDto, 'signature'>}
+   * @returns {PurchaseSignatureResponse}
+   */
+  public async generatePurchaseSignature(
+    data: Omit<PurchaseItemDto, 'signature'>,
+  ): Promise<PurchaseSignatureResponse> {
+    const buyerNonce = await this.web3Service.callContractMethod('buyerNonces', [data.buyer])
+    // Only calls it to throw if it's not found
+    await this._findItem(data.itemId)
+
+    const deadline =
+      data.deadline ?? (await this.web3Service.getCurrentBlockTimestamp()) + 60 * 60 * 24
+
+    return {
+      domain: {
+        verifyingContract: await this.web3Service.getContractAddress(),
+        ...DOMAIN,
+      },
+      types: {
+        PurchaseItem: PURCHASE_ITEM_SIGNATURE.PurchaseItem,
+      },
+      value: {
+        itemId: data.itemId,
+        nonce: buyerNonce,
+        deadline: deadline,
+      },
+    }
+  }
+
+  /**
+   * @dev Generate EIP712 signature for withdrawing funds
+   * @param data {Omit<WithdrawFundsDto, 'signature'>}
+   * @returns {WithdrawSignatureResponse}
+   */
+  public async generateWithdrawSignature(
+    data: Omit<WithdrawFundsDto, 'signature'>,
+  ): Promise<WithdrawSignatureResponse> {
+    // In this case, we have to throw because at least the seller must exist to be able to withdraw
+    const seller = await this._findSeller(data.seller, true)
+    const deadline =
+      data.deadline ?? (await this.web3Service.getCurrentBlockTimestamp()) + 60 * 60 * 24
+
+    return {
+      domain: {
+        verifyingContract: await this.web3Service.getContractAddress(),
+        ...DOMAIN,
+      },
+      types: {
+        ListItem: WITHDRAW_SIGNATURE.WithdrawFunds,
+      },
+      value: {
+        nonce: seller.signedNonce,
+        deadline: deadline,
+      },
+    }
+  }
+
+  /////////////////////////////////////////////// PRIVATE METHODS ///////////////////////////////////////////////
 
   private async _getItems(items: string[], offset: number, limit: number) {
     // Fetch details for each listing
@@ -190,12 +352,12 @@ export class MarketplaceService {
     return this._decodeItem(rawItem)
   }
 
-  private async _findSeller(sellerAddress: string): Promise<Seller> {
+  private async _findSeller(sellerAddress: string, throwOnNotFound = true): Promise<Seller> {
     const rawSeller = await this.web3Service.callContractMethod('sellers', [sellerAddress])
-    if (!rawSeller.active) {
+    if (!rawSeller.active && throwOnNotFound) {
       throw new HttpException(`Not active seller with ${sellerAddress}`, 404)
     }
-    return this._decodeSeller(rawSeller)
+    return rawSeller ? this._decodeSeller(rawSeller) : null
   }
 
   private _decodeSeller(rawSeller: any): Seller {
@@ -208,4 +370,16 @@ export class MarketplaceService {
       signedNonce: rawSeller[5].toString(),
     }
   }
+
+  private async _getDecodedPurchaseEvents(rawEvents: any[]): Promise<any[]> {
+    return rawEvents.map((event: any) => {
+      return {
+        buyer: event.args[0].toString(),
+        token: event.args[1].toString(),
+        amount: event.args[2].toString(),
+        price: event.args[3].toString(),
+      }
+    })
+  }
+  //ItemPurchased(address indexed buyer, address indexed token, uint256 amount, uint256 price);
 }

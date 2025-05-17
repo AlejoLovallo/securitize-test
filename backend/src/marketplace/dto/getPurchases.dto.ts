@@ -1,9 +1,9 @@
-import { IsOptional, IsString } from 'class-validator'
+import { IsNumber, IsOptional, IsString } from 'class-validator'
 
 export class GetPurchasesHistoryDto {
   @IsOptional()
-  @IsString()
-  fromBlock?: string
+  @IsNumber()
+  fromBlock?: number
 
   @IsOptional()
   @IsString()

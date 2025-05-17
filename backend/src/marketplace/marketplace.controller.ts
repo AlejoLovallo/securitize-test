@@ -9,16 +9,13 @@ import {
   PurchaseItemDto,
   WithdrawFundsDto,
 } from './dto'
-import { Seller } from './types'
-
-/**
- * Query listed items and purchase history from the smart contract.
-Generate EIP-712-compliant messages for token transfers.
- * Listing items via signed messages ( POST /list).
-Querying all items ( GET /items).
-Purchasing item ( POST /purchase).
-Withdraw item ( POST /withdraw)
- */
+import {
+  ListSignatureResponse,
+  PurchaseSignatureResponse,
+  Seller,
+  TransactionResponse,
+  WithdrawSignatureResponse,
+} from './types'
 
 @ApiTags('marketplace')
 @Controller('marketplace')
@@ -31,7 +28,7 @@ export class MarketplaceController {
   }
 
   @Post('list')
-  async listItem(@Body() body: ListItemDto) {
+  async listItem(@Body() body: ListItemDto): Promise<TransactionResponse> {
     return this.marketplaceService.listItem(body)
   }
 
@@ -41,12 +38,12 @@ export class MarketplaceController {
   }
 
   @Post('purchase')
-  async purchaseItem(@Body() body: PurchaseItemDto) {
+  async purchaseItem(@Body() body: PurchaseItemDto): Promise<TransactionResponse> {
     return this.marketplaceService.purchaseItem(body)
   }
 
   @Post('withdraw')
-  async withdrawFunds(@Body() body: WithdrawFundsDto) {
+  async withdrawFunds(@Body() body: WithdrawFundsDto): Promise<TransactionResponse> {
     return this.marketplaceService.withdrawFunds(body)
   }
 
@@ -56,11 +53,23 @@ export class MarketplaceController {
   }
 
   @Post('signatures/list')
-  async generateListSignature() {}
+  async generateListSignature(
+    @Body() data: Omit<ListItemDto, 'signature'>,
+  ): Promise<ListSignatureResponse> {
+    return this.marketplaceService.generateListSignature(data)
+  }
 
   @Post('signatures/purchase')
-  async generatePurchaseSignature() {}
+  async generatePurchaseSignature(
+    @Body() data: Omit<PurchaseItemDto, 'signature'>,
+  ): Promise<PurchaseSignatureResponse> {
+    return this.marketplaceService.generatePurchaseSignature(data)
+  }
 
   @Post('signatures/withdraw')
-  async generateWithdrawSignature() {}
+  async generateWithdrawSignature(
+    @Body() data: Omit<WithdrawFundsDto, 'signature'>,
+  ): Promise<WithdrawSignatureResponse> {
+    return this.marketplaceService.generateWithdrawSignature(data)
+  }
 }
