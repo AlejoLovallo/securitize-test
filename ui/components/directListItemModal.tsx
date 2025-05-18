@@ -10,26 +10,43 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { ListSignatureResponse } from '@/types'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { parseEther } from 'viem'
+import toast from 'react-hot-toast'
 
-interface ListItemModalProps {
-  onSubmit: (tokenAddress: string, price: number, amount: number) => Promise<void>
-  buttonLabel?: string
+interface DirectListItemModalProps {
+  onSubmit: (tokenAddress: string, price: string, amount: number) => Promise<any>
 }
 
-export function ListItemModal({ onSubmit, buttonLabel = 'List New Item' }: ListItemModalProps) {
+export function DirectListItemModal({ onSubmit }: DirectListItemModalProps) {
   const [tokenAddress, setTokenAddress] = useState('')
   const [price, setPrice] = useState('')
   const [amount, setAmount] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [signature, setSignature] = useState<ListSignatureResponse | null>(null)
   const [isOpen, setIsOpen] = useState(false)
+  const [txHash, setTxHash] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setTxHash(null)
+
     try {
-      await onSubmit(tokenAddress, parseFloat(price), parseInt(amount))
+      // Convert price from ETH to wei
+      const priceInWei = parseEther(price)
+      const result = await onSubmit(tokenAddress, priceInWei.toString(), parseInt(amount))
+      setTxHash(result?.transactionHash || null)
+
+      // Close the modal on success
+      setIsOpen(false)
+
+      // Reset form
+      setTokenAddress('')
+      setPrice('')
+      setAmount('')
+    } catch (error: any) {
+      // Toast notifications are handled in the parent component
+      console.error('Error in modal:', error)
     } finally {
       setIsLoading(false)
     }
@@ -38,12 +55,13 @@ export function ListItemModal({ onSubmit, buttonLabel = 'List New Item' }: ListI
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button>{buttonLabel}</Button>
+        <Button>Direct List Item</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>List New Item</DialogTitle>
+          <DialogTitle>Direct List Item (on-chain)</DialogTitle>
         </DialogHeader>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="tokenAddress">Token Address</Label>
@@ -77,7 +95,7 @@ export function ListItemModal({ onSubmit, buttonLabel = 'List New Item' }: ListI
             />
           </div>
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? 'Processing...' : 'Generate Signature'}
+            {isLoading ? 'Processing Transaction...' : 'List Item'}
           </Button>
         </form>
       </DialogContent>

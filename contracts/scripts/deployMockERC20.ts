@@ -8,9 +8,20 @@ async function main() {
     throw Error('PLEASE PROVIDE A TOKEN TRANSFER ADDRESS TO ASSING IT AS MINTER')
   }
 
-  console.log(chalk.yellow('Deploying MockERC20....'))
+  // Token parameters with defaults
+  const tokenName = process.env.TOKEN_NAME || 'USD Coin'
+  const tokenSymbol = process.env.TOKEN_SYMBOL || 'USDC'
+  const tokenSupply = process.env.TOKEN_SUPPLY || '6000000000000000'
+  const tokenDecimals = process.env.TOKEN_DECIMALS || '6'
+
+  console.log(chalk.yellow(`Deploying MockERC20 with parameters:`))
+  console.log(chalk.yellow(`Name: ${tokenName}`))
+  console.log(chalk.yellow(`Symbol: ${tokenSymbol}`))
+  console.log(chalk.yellow(`Supply: ${tokenSupply}`))
+  console.log(chalk.yellow(`Decimals: ${tokenDecimals}`))
+
   const contractName = 'MockERC20'
-  const constructorArguments = ['USD Coin', 'USDC', '6000000000000000', '6']
+  const constructorArguments = [tokenName, tokenSymbol, tokenSupply, tokenDecimals]
   const MockERC20 = await ethers.deployContract(contractName, constructorArguments)
 
   await MockERC20.waitForDeployment()

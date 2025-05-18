@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ShoppingCart } from 'lucide-react'
 import { getTokenData } from '@/services/web3'
+import { formatEther } from 'viem'
 
 interface TokenInfo {
   name: string
@@ -25,7 +26,7 @@ export default function Item({ token, onPurchase, isLoading: purchaseLoading }: 
   useEffect(() => {
     const loadTokenInfo = async () => {
       try {
-        const data = await getTokenData(token.token.split('0x')[1])
+        const data = await getTokenData(token.token)
         console.log('Token data:', data)
         setTokenInfo(data)
       } catch (error) {
@@ -53,7 +54,9 @@ export default function Item({ token, onPurchase, isLoading: purchaseLoading }: 
           </div>
         </div>
         <p className="text-sm text-muted-foreground mb-2">Available: {token.amount}</p>
-        <p className="text-xl font-medium text-primary mb-4">{token.price} ETH</p>
+        <p className="text-xl font-medium text-primary mb-4">
+          {token?.price ? Number(formatEther(BigInt(token.price))).toExponential() : 0} ETH
+        </p>
         <Button className="w-full" onClick={onPurchase} disabled={purchaseLoading}>
           <ShoppingCart className="mr-2 h-4 w-4" />
           {purchaseLoading ? 'Processing...' : 'Buy'}

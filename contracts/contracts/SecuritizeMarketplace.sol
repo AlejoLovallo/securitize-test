@@ -345,6 +345,9 @@ contract SecuritizeMarketplace is ISecuritizeMarketplace, Context, ReentrancyGua
             revert EarningsTransferError(seller, amount);
         }
 
+        // Update the seller's information
+        sellers[seller].pendingWithdrawals = 0;
+
         emit FundsWithdrawn(seller, amount);
     }
 

@@ -1,0 +1,288 @@
+{
+	"info": {
+		"_postman_id": "da3e46ed-b76c-48be-954c-e119e9ecfea8",
+		"name": "Securitize",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11215430"
+	},
+	"item": [
+		{
+			"name": "signatures",
+			"item": [
+				{
+					"name": "Generate list item signature",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"0x942aa49C7058acB2a44444a1C5c910baC18E813b\",\n    \"seller\": \"0x7237f178E07D159c636fE6e72a8F6899e3671Fbd\",\n    \"price\": 100,\n    \"amount\": 100\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/marketplace/signatures/list",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"marketplace",
+								"signatures",
+								"list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Generate purchase signature Copy",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"itemId\": 0,\n    \"buyer\": \"0x153073310327caA6abB76F735d115E5c8bA1617B\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/marketplace/signatures/purchase",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"marketplace",
+								"signatures",
+								"purchase"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Generate withdraw funds signature",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"seller\": \"0x7237f178E07D159c636fE6e72a8F6899e3671Fbd\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/marketplace/signatures/withdraw",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"marketplace",
+								"signatures",
+								"withdraw"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Transactions",
+			"item": [
+				{
+					"name": "ListItemWithSignature",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"0x942aa49C7058acB2a44444a1C5c910baC18E813b\",\n    \"seller\": \"0x7237f178E07D159c636fE6e72a8F6899e3671Fbd\",\n    \"price\": 100,\n    \"amount\": 100,\n    \"deadline\": 1747604988,\n    \"signature\": \"0xdd34fb9fcc117118afb3900b3facbe47450b110cdfb716ffab68047a856442cf0147e3df24ed1d0a88e9f9a39de90a0d9df1ab8a9d420be5130b85ff8ff4c83e1c\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/marketplace/list",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"marketplace",
+								"list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PurchaseItemWithSignature",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"itemId\": \"1\",\n    \"buyer\": \"0x7237f178E07D159c636fE6e72a8F6899e3671Fbd\",\n    \"deadline\": 1747604988,\n    \"signature\": \"0xdd34fb9fcc117118afb3900b3facbe47450b110cdfb716ffab68047a856442cf0147e3df24ed1d0a88e9f9a39de90a0d9df1ab8a9d420be5130b85ff8ff4c83e1c\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/marketplace/purchase",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"marketplace",
+								"purchase"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "WithdrawFundsWithSignature",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"seller\": \"0x7237f178E07D159c636fE6e72a8F6899e3671Fbd\",\n    \"deadline\": 1747604988,\n    \"signature\": \"0xdd34fb9fcc117118afb3900b3facbe47450b110cdfb716ffab68047a856442cf0147e3df24ed1d0a88e9f9a39de90a0d9df1ab8a9d420be5130b85ff8ff4c83e1c\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/marketplace/withdraw",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"marketplace",
+								"withdraw"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Items",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/api/marketplace/items?forceUpdate=true",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"marketplace",
+						"items"
+					],
+					"query": [
+						{
+							"key": "forceUpdate",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Purchase history",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"fromBlock\": 8348036\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/api/marketplace/purchases",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"marketplace",
+						"purchases"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Seller",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:3000/api/marketplace/sellers/0x7237f178E07D159c636fE6e72a8F6899e3671Fbd",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"marketplace",
+						"sellers",
+						"0x7237f178E07D159c636fE6e72a8F6899e3671Fbd"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

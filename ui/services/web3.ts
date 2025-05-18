@@ -18,20 +18,24 @@ interface TokenData {
 }
 
 export const getTokenData = async (tokenAddress: string): Promise<TokenData> => {
+  const formattedTokenAddress = tokenAddress.startsWith('0x')
+    ? (tokenAddress as `${string}`)
+    : (`0x${tokenAddress}` as `0x${string}`)
+
   try {
     const [name, symbol, decimals] = await Promise.all([
       client.readContract({
-        address: tokenAddress as `0x${string}`,
+        address: formattedTokenAddress,
         abi: erc20ABI,
         functionName: 'name',
       }),
       client.readContract({
-        address: tokenAddress as `0x${string}`,
+        address: formattedTokenAddress,
         abi: erc20ABI,
         functionName: 'symbol',
       }),
       client.readContract({
-        address: tokenAddress as `0x${string}`,
+        address: formattedTokenAddress,
         abi: erc20ABI,
         functionName: 'decimals',
       }),
@@ -100,8 +104,15 @@ export const purchaseToken = async (itemId: number, price: string, walletClient:
 
 export const withdrawFunds = async (walletClient: any) => {
   try {
+    const marketplaceAddress = MARKETPLACE_ADDRESS?.startsWith('0x')
+      ? (MARKETPLACE_ADDRESS as `0x${string}`)
+      : (`0x${MARKETPLACE_ADDRESS}` as `0x${string}`)
+
+    console.log('Withdrawing funds with wallet:', walletClient.account)
+
     const { request } = await client.simulateContract({
-      address: `0x${MARKETPLACE_ADDRESS}`,
+      account: walletClient.account,
+      address: marketplaceAddress,
       abi: marketplaceABI,
       functionName: 'withdrawFunds',
       args: [],
@@ -110,9 +121,86 @@ export const withdrawFunds = async (walletClient: any) => {
     const hash = await walletClient.writeContract(request)
     const receipt = await client.waitForTransactionReceipt({ hash })
 
+    console.log('Withdraw successful, receipt:', receipt)
     return receipt
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error withdrawing funds:', error)
+
+    // Add more detailed error logging
+    if (error.message) {
+      console.error('Error message:', error.message)
+    }
+
+    if (error.cause) {
+      console.error('Error cause:', error.cause)
+    }
+
+    throw error
+  }
+}
+
+export const signTypedMessage = async (walletClient: any, typedData: any, primaryType: string) => {
+  try {
+    console.log('Requesting signature for:', {
+      domain: typedData.domain,
+      types: typedData.types,
+      primaryType,
+      message: typedData.value,
+    })
+
+    const signature = await walletClient.signTypedData({
+      account: walletClient.account,
+      domain: typedData.domain,
+      types: typedData.types,
+      primaryType,
+      message: typedData.value,
+    })
+
+    console.log('Signature received:', signature)
+    return signature
+  } catch (error) {
+    console.error('Error signing message:', error)
+    throw error
+  }
+}
+
+export const listItem = async (
+  tokenAddress: string,
+  price: string,
+  amount: number,
+  walletClient: any,
+) => {
+  try {
+    const marketplaceAddress = MARKETPLACE_ADDRESS?.startsWith('0x')
+      ? (MARKETPLACE_ADDRESS as `0x${string}`)
+      : (`0x${MARKETPLACE_ADDRESS}` as `0x${string}`)
+
+    console.log('Listing item with params:', {
+      tokenAddress,
+      price,
+      amount,
+      marketplaceAddress,
+    })
+
+    const { request } = await client.simulateContract({
+      account: walletClient.account,
+      address: marketplaceAddress,
+      abi: marketplaceABI,
+      functionName: 'listItem',
+      args: [tokenAddress as `0x${string}`, BigInt(price), BigInt(amount)],
+    })
+
+    const hash = await walletClient.writeContract(request)
+    const receipt = await client.waitForTransactionReceipt({ hash })
+
+    console.log('Item listed successfully:', receipt)
+    return receipt
+  } catch (error: any) {
+    console.error('Error listing item:', {
+      error,
+      message: error.message,
+      cause: error.cause,
+    })
     throw error
   }
 }

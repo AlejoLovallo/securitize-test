@@ -11,9 +11,6 @@ WORKDIR /app
 # Copy configuration files
 COPY tsconfig*.json ./
 COPY package.json ./
-COPY yarn.lock ./
-COPY .npmrc ./
-COPY drizzle ./
 
 RUN yarn install
 
@@ -33,19 +30,16 @@ WORKDIR /app
 
 # Copy dependencies files
 COPY package.json ./
-COPY yarn.lock ./
-COPY .npmrc ./
 
 RUN yarn install
 
 # Copy production build
 COPY --from=builder /app/dist/ dist
 COPY --from=builder /app/node_modules/ node_modules
-COPY --from=builder /app/drizzle/ drizzle
 
 
 # Expose application port
-EXPOSE 3005
+EXPOSE 3000
 
 # Start application
 CMD [ "node", "dist/main.js" ]

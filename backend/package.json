@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build && [ -f build.info ] && rm build.info || true && date +%Y-%m-%dT%H:%M:%S > build.info && git rev-parse --short HEAD >> build.info",
+    "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" ",
     "format:file": "prettier --write",
     "format:check": "prettier --check \"src/**/*.ts\"",

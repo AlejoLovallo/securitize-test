@@ -26,8 +26,42 @@ Implement a Marketplace contract using ERC-20 tokens as the traded items.
 
 ### Commands
 
-```bash
+- Compile
 
+```bash
+npx hardhat compile
+```
+
+- Deploy
+
+```bash
+npx hardhat deploy
+```
+
+- Deploy to live network
+
+```bash
+npx hardhat deploy --network <NETWORK>
+```
+
+- Test
+
+```bash
+npx hardhat test
+```
+
+```bash
+TOKEN_TRANSFER_ADDRESS=0x7237f178E07D159c636fE6e72a8F6899e3671Fbd npx hardhat run scripts/deployMockERC20.ts --network sepolia
+```
+
+Also you can pass optionally arguments for the token deployment
+
+```typescript
+// Token parameters with defaults
+const tokenName = process.env.TOKEN_NAME || 'USD Coin'
+const tokenSymbol = process.env.TOKEN_SYMBOL || 'USDC'
+const tokenSupply = process.env.TOKEN_SUPPLY || '6000000000000000'
+const tokenDecimals = process.env.TOKEN_DECIMALS || '6'
 ```
 
 ### Tasks
@@ -52,6 +86,12 @@ npx hardhat list-item --token <TOKEN ADDRESS> --amount <AMOUNT> --price <TOKENS 
 npx hardhat buy-item --item <ITEM_ID>
 ```
 
+3. Withdraw funds
+
+```bash
+npx hardhat withdraw-funds
+```
+
 ### Deployment
 
-- [Sepolia](https://sepolia.etherscan.io/address/0x7C7bfb2DdD9eB84865d198E0c29d37350fdFFBfb#code)
+- [Sepolia](https://sepolia.etherscan.io/address/E463ec80522a0208489783bD8Ff82C972A33D5aa)

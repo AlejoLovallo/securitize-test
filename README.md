@@ -29,8 +29,8 @@ General:
 - Monorepo built with pnpm and turbo.
 - **Workspaces**:
   - UI: UI Dapp
-  - Backend:
-  - Contracts:
+  - Backend: Backend for retrieving contract and tokens data, and also for executing methods through signatures
+  - Contracts: Securitize Marketplace smart contract.
 
 ### Commands
 

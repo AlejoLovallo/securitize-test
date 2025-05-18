@@ -113,14 +113,15 @@ export class MarketplaceService {
    */
   public async listItem(data: ListItemDto): Promise<TransactionResponse> {
     this.logger.log('Listing item on the marketplace')
-    const { token, price, amount, signature, deadline } = data
+    const { token, price, amount, signature, deadline, seller } = data
 
     const sigDeadline =
       deadline ?? (await this.web3Service.getCurrentBlockTimestamp()) + 60 * 60 * 24
 
-    // Call the smart contract to list the item
-    const result = await this.web3Service.executeContractMethod('listItemWithSig', [
+    // Call the smart contract to list the item - fixed capitalization to match contract
+    const result = await this.web3Service.executeContractMethod('ListItemWithSig', [
       signature,
+      seller, // Make sure seller is passed correctly
       token,
       price,
       amount,
@@ -147,7 +148,6 @@ export class MarketplaceService {
     const sigDeadline =
       deadline ?? (await this.web3Service.getCurrentBlockTimestamp()) + 60 * 60 * 24
 
-    // Call the smart contract to list the item
     const result = await this.web3Service.executeContractMethod('purchaseItemWithSig', [
       itemId,
       buyer,
@@ -173,8 +173,7 @@ export class MarketplaceService {
     const sigDeadline =
       deadline ?? (await this.web3Service.getCurrentBlockTimestamp()) + 60 * 60 * 24
 
-    // Call the smart contract to withdraw funds
-    const result = await this.web3Service.executeContractMethod('withdrawFundsWithSig', [
+    const result = await this.web3Service.executeContractMethod('withdrawWithSig', [
       seller,
       signature,
       sigDeadline,
@@ -384,5 +383,4 @@ export class MarketplaceService {
       }
     })
   }
-  //ItemPurchased(address indexed buyer, address indexed token, uint256 amount, uint256 price);
 }

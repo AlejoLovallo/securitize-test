@@ -1,11 +1,19 @@
 'use server'
 
-import { Item, Seller } from '@/types'
+import {
+  Item,
+  ListSignatureResponse,
+  PurchaseSignatureResponse,
+  Seller,
+  WithdrawSignatureResponse,
+} from '@/types'
 
 const BACKEND_SERVICE = process.env.BACKEND_URL
 
-export const getItems = async (): Promise<Item[]> => {
-  const response = await fetch(`${BACKEND_SERVICE}/api/marketplace/items`)
+export const getItems = async (forceUpdate?: boolean): Promise<Item[]> => {
+  const response = await fetch(
+    `${BACKEND_SERVICE}/api/marketplace/items?forceUpdate=${forceUpdate}`,
+  )
   const data = await response.json()
 
   return data.decodedItems.map((item: any) => ({
@@ -103,7 +111,7 @@ export const generateListItemSignature = async (
   tokenAddress: string,
   price: number,
   amount: number,
-) => {
+): Promise<ListSignatureResponse> => {
   const response = await fetch(`${BACKEND_SERVICE}/api/marketplace/signatures/list`, {
     method: 'POST',
     headers: {
@@ -124,7 +132,10 @@ export const generateListItemSignature = async (
   return response.json()
 }
 
-export const generatePurchaseItemSignature = async (itemId: number, buyer: string) => {
+export const generatePurchaseItemSignature = async (
+  itemId: number,
+  buyer: string,
+): Promise<PurchaseSignatureResponse> => {
   const response = await fetch(`${BACKEND_SERVICE}/api/marketplace/signatures/purchase`, {
     method: 'POST',
     headers: {
@@ -143,7 +154,9 @@ export const generatePurchaseItemSignature = async (itemId: number, buyer: strin
   return response.json()
 }
 
-export const generateWithdrawFundsSignature = async (seller: string) => {
+export const generateWithdrawFundsSignature = async (
+  seller: string,
+): Promise<WithdrawSignatureResponse> => {
   const response = await fetch(`${BACKEND_SERVICE}/api/marketplace/signatures/withdraw`, {
     method: 'POST',
     headers: {

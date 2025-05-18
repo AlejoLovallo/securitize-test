@@ -10,6 +10,7 @@ import { tasks as WithdrawFundsTask } from './tasks/withdrawFunds.task'
 import { tasks as PurchaseItemTask } from './tasks/purchaseItem.task'
 import { tasks as ApproveTask } from './tasks/approveContract.task'
 import { tasks as ViewTasks } from './tasks/viewTasks.task'
+import { tasks as SignaturesTasks } from './tasks/signatures.task'
 
 dotEnvConfig()
 
@@ -21,6 +22,7 @@ WithdrawFundsTask()
 PurchaseItemTask()
 ApproveTask()
 ViewTasks()
+SignaturesTasks()
 
 const config: HardhatUserConfig = {
   solidity: '0.8.28',

@@ -5,6 +5,7 @@ import { purchaseToken } from '@/services/web3'
 import type { Item as ItemType } from '@/types'
 import { useEffect, useState } from 'react'
 import { useWalletClient } from 'wagmi'
+import toast from 'react-hot-toast'
 
 interface TokensProps {
   tokens?: ItemType[]
@@ -31,14 +32,31 @@ export default function Tokens({ tokens }: TokensProps) {
 
   const handlePurchase = async (tokenId: string, price: string) => {
     if (!walletClient) return
+
+    const toastId = toast.loading(`Purchasing token #${tokenId}...`)
     try {
       const receipt = await purchaseToken(parseInt(tokenId), price, walletClient)
+
+      toast.success(
+        `Token purchased successfully! Transaction: ${receipt.transactionHash.slice(0, 10)}...`,
+        {
+          id: toastId,
+          duration: 5000,
+        },
+      )
+
       console.log('Purchase successful:', receipt)
+
       // Refresh tokens list after purchase
-      const response = await getItems()
+      const response = await getItems(true)
       setTokens(response)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error purchasing token:', error)
+
+      toast.error(`Failed to purchase token: ${error.message?.slice(0, 50) || 'Unknown error'}`, {
+        id: toastId,
+        duration: 5000,
+      })
     }
   }
 
