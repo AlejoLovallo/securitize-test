@@ -101,3 +101,14 @@ pnpm contracts:deploy:network <NETWORK>
 ### Deployment
 
 - Dapp has been deployed at:
+
+******
+
+### Completition status
+
+* Smart Contracts: [100%]
+* Backend: [100%]
+* Frontend: [75%]
+  * Sign and send transaction to backend
+  * Token filtering
+  * Minor adjustments needed.
