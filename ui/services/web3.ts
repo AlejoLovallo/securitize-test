@@ -25,17 +25,17 @@ export const getTokenData = async (tokenAddress: string): Promise<TokenData> => 
   try {
     const [name, symbol, decimals] = await Promise.all([
       client.readContract({
-        address: formattedTokenAddress,
+        address: formattedTokenAddress as `0x${string}`,
         abi: erc20ABI,
         functionName: 'name',
       }),
       client.readContract({
-        address: formattedTokenAddress,
+        address: formattedTokenAddress as `0x${string}`,
         abi: erc20ABI,
         functionName: 'symbol',
       }),
       client.readContract({
-        address: formattedTokenAddress,
+        address: formattedTokenAddress as `0x${string}`,
         abi: erc20ABI,
         functionName: 'decimals',
       }),

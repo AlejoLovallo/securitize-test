@@ -293,7 +293,9 @@ export default function Seller() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => navigator.clipboard.writeText(signatures.list)}
+                          onClick={() =>
+                            navigator.clipboard.writeText(JSON.stringify(signatures.list))
+                          }
                         >
                           Copy
                         </Button>
@@ -363,7 +365,9 @@ export default function Seller() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => navigator.clipboard.writeText(signatures.withdraw)}
+                          onClick={() =>
+                            navigator.clipboard.writeText(JSON.stringify(signatures.withdraw))
+                          }
                         >
                           Copy
                         </Button>

@@ -7,12 +7,8 @@ import { useEffect, useState } from 'react'
 import { useWalletClient } from 'wagmi'
 import toast from 'react-hot-toast'
 
-interface TokensProps {
-  tokens?: ItemType[]
-}
-
-export default function Tokens({ tokens }: TokensProps) {
-  const [itemsData, setTokens] = useState<ItemType[]>(tokens || [])
+export default function Tokens() {
+  const [itemsData, setTokens] = useState<ItemType[]>([])
   const { data: walletClient } = useWalletClient()
 
   useEffect(() => {
@@ -24,9 +20,7 @@ export default function Tokens({ tokens }: TokensProps) {
         console.error('Error fetching tokens:', error)
       }
     }
-    if (!tokens) {
-      fetchTokens()
-    } else [setTokens(tokens)]
+    fetchTokens()
     // If tokens are passed as props, use them directly
   }, [])
 

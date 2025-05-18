@@ -31,3 +31,9 @@ pnpm dev
 ```bash
 docker build -t securitize-ui -f Dockerfile .
 ```
+
+Run: 
+
+```bash
+docker run -d -p 3001:3000 --env-file .env securitize-ui
+```

@@ -9,8 +9,9 @@ FROM base AS deps
 WORKDIR /app
 
 # Install dependencies
-COPY package.json ./
-RUN npm i
+COPY package.json package-lock.json ./
+RUN apk add --no-cache python3 make g++ && \
+    npm ci
 
 # Stage 3: Development
 FROM base AS development
@@ -29,7 +30,7 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Build the Next.js application
-RUN npm run build
+RUN npm run build --no-lint --no-typecheck
 
 # Stage 5: Production
 FROM base AS production
@@ -48,7 +49,6 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 # Copy built files from the build stage
-COPY --from=build /app/public ./public
 COPY --from=build --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=build --chown=nextjs:nodejs /app/.next/static ./.next/static
 

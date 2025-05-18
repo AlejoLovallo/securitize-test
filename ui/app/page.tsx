@@ -8,7 +8,6 @@ import { ConnectWallet } from '@/components/connectWallet'
 import { getItems } from '@/services/marketplace'
 import { createPublicClient, http, formatEther } from 'viem'
 import { useEffect, useState } from 'react'
-import { useAccount } from 'wagmi'
 
 const Tokens = dynamic(() => import('./tokens/page'))
 
@@ -59,7 +58,7 @@ export default function Marketplace() {
   }
 
   if (showTokens && items) {
-    return <Tokens tokens={items} />
+    return <Tokens />
   }
 
   // Format timestamp to readable date

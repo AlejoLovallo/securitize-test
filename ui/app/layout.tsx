@@ -9,8 +9,8 @@ import { Providers } from '@/wallet/providers'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  title: 'Fonder Admin',
-  description: 'Admin interface for Fonder - Financial Management System',
+  title: 'Securitize UI',
+  description: 'Securitize UI Assesment DAPP',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
