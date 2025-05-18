@@ -11,7 +11,7 @@
     "backend:dev": "pnpm --filter securitize-backend dev",
     "backend:lint": "pnpm --filter securitize-backend lint",
     "backend:test": "pnpm --filter securitize-backend test",
-    "ui:dev": "pnpm --filter ui dev",
+    "ui:dev": "pnpm --filter securitize-ui dev",
     "lint": "pnpm contracts:lint"
   },
   "devDependencies": {

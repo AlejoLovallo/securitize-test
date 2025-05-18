@@ -40,8 +40,9 @@ export class MarketplaceService {
    */
   public async getItems(query: GetItemsQueryDto): Promise<GetItemsResponse> {
     this.logger.log('Fetching items from the marketplace')
-    const { page, limit, token, seller, forceUpdate } = query
+    let { page, limit, token, seller, forceUpdate } = query
     const offset = (page - 1) * limit
+    forceUpdate = typeof forceUpdate === 'string' ? forceUpdate === 'true' : forceUpdate === true
 
     const cacheKey = `marketplace:items:${token || 'all'}:${seller || 'all'}`
     let items: string[] = []
@@ -272,7 +273,7 @@ export class MarketplaceService {
   ): Promise<PurchaseSignatureResponse> {
     const buyerNonce = await this.web3Service.callContractMethod('buyerNonces', [data.buyer])
     // Only calls it to throw if it's not found
-    await this._findItem(data.itemId)
+    await this._findItem(parseInt(data.itemId.toString()))
 
     const deadline =
       data.deadline ?? (await this.web3Service.getCurrentBlockTimestamp()) + 60 * 60 * 24
@@ -287,7 +288,7 @@ export class MarketplaceService {
       },
       value: {
         itemId: data.itemId,
-        nonce: buyerNonce,
+        nonce: parseInt(buyerNonce.toString()),
         deadline: deadline,
       },
     }
@@ -325,14 +326,16 @@ export class MarketplaceService {
 
   private async _getItems(items: string[], offset: number, limit: number) {
     // Fetch details for each listing
+    const slicedItems = items.slice(offset, offset + limit)
     const itemDetails = await Promise.all(
-      items
-        .slice(offset, offset + limit)
-        .map((itemId) => this.web3Service.callContractMethod('listedItems', [itemId])),
+      slicedItems.map((itemId) => this.web3Service.callContractMethod('listedItems', [itemId])),
     )
 
-    // Map the item details to a more readable format
-    return itemDetails.map((item: any) => this._decodeItem(item))
+    // Map the item details to a more readable format and include itemId
+    return itemDetails.map((item: any, idx: number) => ({
+      ...this._decodeItem(item),
+      itemId: slicedItems[idx],
+    }))
   }
 
   private _decodeItem(item: any): MarketplaceItem {

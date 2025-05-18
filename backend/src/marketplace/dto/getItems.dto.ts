@@ -22,7 +22,7 @@ export class GetItemsQueryDto {
   seller?: string
 
   @IsOptional()
-  @IsBoolean()
+  @IsString()
   forceUpdate?: boolean
 }
 
@@ -35,6 +35,7 @@ export class GetItemsResponse {
   @ApiResponseProperty()
   @IsArray()
   decodedItems: Array<{
+    id: string
     token: string
     seller: string
     amount: string

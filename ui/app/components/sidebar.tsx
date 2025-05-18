@@ -12,14 +12,11 @@ export function Sidebar() {
           <Home className="w-5 h-5" />
           <span>Dashboard</span>
         </Link>
-        <Link
-          href="/tenants"
-          className="flex items-center space-x-2 p-2 rounded-lg hover:bg-accent"
-        >
+        <Link href="/tokens" className="flex items-center space-x-2 p-2 rounded-lg hover:bg-accent">
           <Building2 className="w-5 h-5" />
           <span>Tokens</span>
         </Link>
-        <Link href="/users" className="flex items-center space-x-2 p-2 rounded-lg hover:bg-accent">
+        <Link href="/seller" className="flex items-center space-x-2 p-2 rounded-lg hover:bg-accent">
           <Users className="w-5 h-5" />
           <span>Seller</span>
         </Link>
