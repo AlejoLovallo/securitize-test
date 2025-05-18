@@ -109,6 +109,6 @@ pnpm contracts:deploy:network <NETWORK>
 * Smart Contracts: [100%]
 * Backend: [100%]
 * Frontend: [75%]
-  * Sign and send transaction to backend
+  * Send signed typed message to backend and execute transaction
   * Token filtering
   * Minor adjustments needed.
