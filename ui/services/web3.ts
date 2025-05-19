@@ -204,3 +204,47 @@ export const listItem = async (
     throw error
   }
 }
+
+
+export const checkAndApproveTokenForMarketplace = async (
+  tokenAddress: string,
+  amount: bigint,
+  walletClient: any
+) => {
+  try {
+    const marketplaceAddress = MARKETPLACE_ADDRESS?.startsWith('0x')
+      ? (MARKETPLACE_ADDRESS as `0x${string}`)
+      : (`0x${MARKETPLACE_ADDRESS}` as `0x${string}`)
+    
+    // Verificar allowance actual
+    const currentAllowance = await client.readContract({
+      address: tokenAddress as `0x${string}`,
+      abi: erc20ABI,
+      functionName: 'allowance',
+      args: [walletClient.account.address, marketplaceAddress],
+    }) as bigint
+    
+    // Si ya tiene suficiente allowance, no necesitamos aprobar de nuevo
+    if (currentAllowance >= amount) {
+      console.log('Token already approved with sufficient allowance:', currentAllowance.toString())
+      return { alreadyApproved: true }
+    }
+    
+    // Simular la aprobación ERC20
+    const { request } = await client.simulateContract({
+      account: walletClient.account,
+      address: tokenAddress as `0x${string}`,
+      abi: erc20ABI,
+      functionName: 'approve',
+      args: [marketplaceAddress, amount],
+    })
+
+    const hash = await walletClient.writeContract(request)
+    const receipt = await client.waitForTransactionReceipt({ hash })
+    
+    return { alreadyApproved: false, receipt }
+  } catch (error) {
+    console.error('Error checking/approving token:', error)
+    throw error
+  }
+}

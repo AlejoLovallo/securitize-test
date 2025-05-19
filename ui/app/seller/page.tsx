@@ -13,7 +13,12 @@ import {
   withdrawFundsWithSig,
   getItems,
 } from '@/services/marketplace'
-import { signTypedMessage, withdrawFunds, listItem } from '@/services/web3'
+import {
+  signTypedMessage,
+  withdrawFunds,
+  listItem,
+  checkAndApproveTokenForMarketplace,
+} from '@/services/web3'
 import type {
   Seller,
   ListSignatureResponse,
@@ -44,7 +49,13 @@ export default function Seller() {
 
   useEffect(() => {
     const loadSellerData = async () => {
-      if (!address) return
+      if (!address) {
+        toast.error('Please connect your wallet to access the seller dashboard', {
+          duration: 5000,
+          id: 'wallet-connection-required',
+        })
+        return
+      }
       try {
         const data = await getSeller(address)
         console.log('Seller data:', data)
@@ -222,9 +233,25 @@ export default function Seller() {
   const handleDirectListItem = async (tokenAddress: string, price: string, amount: number) => {
     if (!address || !walletClient) return
 
-    const toastId = toast.loading('Listing item...')
+    const toastId = toast.loading('Preparing to list item...')
     try {
+      // Primer paso: verificar y aprobar tokens si es necesario
+      const amountBigInt = BigInt(amount)
+      const approvalResult = await checkAndApproveTokenForMarketplace(
+        tokenAddress,
+        amountBigInt,
+        walletClient,
+      )
+
+      if (approvalResult.alreadyApproved) {
+        toast.loading('Token already approved, proceeding to list item...', { id: toastId })
+      } else {
+        toast.loading('Tokens approved, now listing item...', { id: toastId })
+      }
+
+      // Segundo paso: listar el ítem
       const result = await listItem(tokenAddress, price, amount, walletClient)
+
       toast.success(
         `Item listed successfully! Transaction: ${result.transactionHash.slice(0, 10)}...`,
         {
@@ -250,7 +277,6 @@ export default function Seller() {
       throw error
     }
   }
-
   return (
     <main className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">Seller Dashboard</h1>

@@ -105,7 +105,7 @@ export const tasks = () => {
       console.log('Signature:', signature)
     })
 
-  task('withdraw-funds', 'Withdraw funds')
+  task('withdraw-funds-sig', 'Withdraw funds')
     .addOptionalParam('accountIndex', '')
     .setAction(async ({ accountIndex }, { ethers }) => {
       const accounts = await ethers.getSigners()

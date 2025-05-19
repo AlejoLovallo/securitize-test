@@ -157,14 +157,15 @@ contract SecuritizeMarketplace is ISecuritizeMarketplace, Context, ReentrancyGua
     }
 
     /**
-     * @dev Pre-list an item for sale
+     * @dev List an item for sale
      * @param signature The signature of the seller
      * @param seller The address of the seller
      * @param token The address of the ERC20 token to be listed
      * @param amount The amount of tokens to list
      * @param price The price of the item in WEI
-     * @param deadline The deadline of the pre-listing
+     * @param deadline The deadline of the listing
      */
+    // @todo: typo in function naming.
     function ListItemWithSig(
         bytes calldata signature,
         address seller,
@@ -414,13 +415,13 @@ contract SecuritizeMarketplace is ISecuritizeMarketplace, Context, ReentrancyGua
     }
 
     /**
-     * @dev Verify pre listing signature
+     * @dev Verify listing signature
      * @param seller The address of the seller
      * @param token The address of the ERC20 token to be listed
      * @param amount The amount of tokens to list
      * @param price The price of the item in WEI
      * @param nonce The nonce of the seller
-     * @param deadline The deadline of the pre listing
+     * @param deadline The deadline of the listing
      */
     function _verifyListSignature(
         address seller,
@@ -454,7 +455,7 @@ contract SecuritizeMarketplace is ISecuritizeMarketplace, Context, ReentrancyGua
      * @param buyer The address of the buyer
      * @param itemId The ID of the item to be purchased
      * @param nonce The nonce of the seller
-     * @param deadline The deadline of the pre listing
+     * @param deadline The deadline of the listing
      */
     function _verifyPurchaseSignature(
         address buyer,
@@ -476,7 +477,7 @@ contract SecuritizeMarketplace is ISecuritizeMarketplace, Context, ReentrancyGua
      * @dev Verify withdraw signature
      * @param seller The address of the seller
      * @param nonce The nonce of the seller
-     * @param deadline The deadline of the pre listing
+     * @param deadline The deadline of the listing
      * @param signature The signature of the seller
      */
     function _verifyWithdrawSignature(
