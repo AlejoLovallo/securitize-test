@@ -15,7 +15,7 @@ docker run -d \
   --name redis-auth \
   -p 6379:6379 \
   redis:latest \
-  redis-server --requirepass strongpassword
+  redis-server
 ```
 
 - To run it in the docker compose version:

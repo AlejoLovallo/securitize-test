@@ -8,6 +8,8 @@
     "contracts:deploy": "pnpm --filter securitize-contracts deploy-contracts",
     "contracts:deploy:network": "pnpm --filter securitize-contracts deploy:network",
     "contracts:lint": "pnpm --filter securitize-contracts lint",
+    "contracts:test": "pnpm --filter securitize-contracts test",
+    "contracts:node": "pnpm --filter securitize-contracts run-node",
     "backend:dev": "pnpm --filter securitize-backend dev",
     "backend:lint": "pnpm --filter securitize-backend lint",
     "backend:test": "pnpm --filter securitize-backend test",

@@ -8,7 +8,7 @@ config()
 @Injectable()
 export class Web3Service {
   private readonly logger = new Logger(Web3Service.name)
-  private provider: ethers.AlchemyProvider
+  private provider: ethers.AlchemyProvider | ethers.Provider
   private marketPlaceContract: ethers.Contract
   private signer: ethers.Signer
   private contractAddress: string
@@ -19,7 +19,14 @@ export class Web3Service {
     const contractAddress = this.configService.get<string>('CONTRACT_ADDRESS')
     const mnemonic = this.configService.get<string>('MNEMONIC')
 
-    this.provider = new ethers.AlchemyProvider(network, alchemyApiKey)
+    // Use Alchemy provider if API key is available, otherwise use default provider
+    if (alchemyApiKey) {
+      this.provider = new ethers.AlchemyProvider(network, alchemyApiKey)
+      this.logger.log(`Using Alchemy provider for network: ${network}`)
+    } else {
+      this.provider = ethers.getDefaultProvider(network)
+      this.logger.log(`Using default provider for network: ${network}`)
+    }
 
     this.marketPlaceContract = new ethers.Contract(contractAddress, abi, this.provider)
 

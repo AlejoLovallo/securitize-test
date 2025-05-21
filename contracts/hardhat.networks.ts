@@ -18,9 +18,11 @@ const networks: any = {
     url: process.env.SEPOLIA_ALCHEMY_KEY
       ? `https://eth-sepolia.g.alchemy.com/v2/${process.env.SEPOLIA_ALCHEMY_KEY}`
       : '',
-    accounts: {
-      mnemonic: process.env.MNEMONIC ? process.env.MNEMONIC : '',
-    },
+    accounts: process.env.PRIVATE_KEY
+      ? [process.env.PRIVATE_KEY]
+      : process.env.MNEMONIC
+        ? { mnemonic: process.env.MNEMONIC }
+        : [],
     allowUnlimitedContractSize: false,
     timeout: 1000 * 60,
     tags: ['testnet', 'sepolia'],
